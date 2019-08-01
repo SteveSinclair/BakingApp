@@ -31,7 +31,7 @@ import static com.example.android.bakingapp.Constants.EXTRA_RECIPE;
 
 public class RecipesListFragment extends Fragment implements RecipeAdapter.RecipeAdapterOnClickHandler {
     private static final String TAG = RecipesListFragment.class.getSimpleName();
-    private final Api api = RetrofitClientInstance.getRetrofitInstance().create(Api.class);
+    private final Api mApi = RetrofitClientInstance.getRetrofitInstance().create(Api.class);
     private RecyclerView mRecyclerView;
     private List<Recipe> mRecipes;
 
@@ -47,7 +47,7 @@ public class RecipesListFragment extends Fragment implements RecipeAdapter.Recip
 
 
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_main, container, false);
+        View view = inflater.inflate(R.layout.fragment_recipes_list, container, false);
         mRecyclerView = view.findViewById(R.id.recylerView_recipes);
         if (view.findViewById(R.id.layoutActivityMainIsOnTablet) == null)
             mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity().getApplicationContext(), 1));
@@ -63,7 +63,7 @@ public class RecipesListFragment extends Fragment implements RecipeAdapter.Recip
     private void loadRecipes() {
         Log.d(TAG, "loadRecipes: enter");
         Call<List<Recipe>> call;
-        call = api.getRecipes();
+        call = mApi.getRecipes();
         call.enqueue(new Callback<List<Recipe>>() {
                          @Override
                          public void onResponse(Call<List<Recipe>> call, Response<List<Recipe>> response) {

@@ -38,7 +38,7 @@ public class IngredientsListFragment extends Fragment {
         mRecipe = (Recipe) getActivity().getIntent().getSerializableExtra(EXTRA_RECIPE);
 
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_ingredients, container, false);
+        View view = inflater.inflate(R.layout.fragment_ingredients_list, container, false);
         IngredientsAdapter mAdapter = new IngredientsAdapter(view.getContext(), mRecipe);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(view.getContext());
         mRecyclerView = view.findViewById(R.id.recyclerViewIngredients);

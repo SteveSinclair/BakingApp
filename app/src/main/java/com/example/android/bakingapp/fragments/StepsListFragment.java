@@ -20,7 +20,7 @@ import com.example.android.bakingapp.entities.Recipe;
 import com.example.android.bakingapp.entities.Step;
 
 import static com.example.android.bakingapp.Constants.EXTRA_RECIPE;
-import static com.example.android.bakingapp.Constants.EXTRA_STEP;
+import static com.example.android.bakingapp.Constants.EXTRA_STEP_ID;
 
 public class StepsListFragment extends Fragment implements StepsAdapter.StepsAdapterOnClickHandler {
     private static final String TAG = StepsListFragment.class.getSimpleName();
@@ -40,7 +40,7 @@ public class StepsListFragment extends Fragment implements StepsAdapter.StepsAda
         mRecipe = (Recipe) getActivity().getIntent().getSerializableExtra(EXTRA_RECIPE);
 
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_steps, container, false);
+        View view = inflater.inflate(R.layout.fragment_steps_list, container, false);
         StepsAdapter mAdapter = new StepsAdapter(view.getContext(), mRecipe, this);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(view.getContext());
         mRecyclerView = view.findViewById(R.id.recyclerViewSteps);
@@ -54,7 +54,8 @@ public class StepsListFragment extends Fragment implements StepsAdapter.StepsAda
     @Override
     public void OnClick(Step step) {
         Intent intent = new Intent(getActivity().getApplicationContext(), StepDetailActivity.class);
-        intent.putExtra(EXTRA_STEP, step);
+        intent.putExtra(EXTRA_RECIPE, mRecipe);
+        intent.putExtra(EXTRA_STEP_ID, step.getId());
         startActivity(intent);
     }
 }

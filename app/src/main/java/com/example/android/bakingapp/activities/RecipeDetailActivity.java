@@ -34,27 +34,27 @@ public class RecipeDetailActivity extends AppCompatActivity {
             if (mIsTwoPane) {
 
             } else {
-                createFragmentIngredients();
-                createFragmentSteps();
+                createFragmentIngredientsList();
+                createFragmentStepsList();
             }
 
         }
     }
 
-    private void createFragmentIngredients() {
+    private void createFragmentIngredientsList() {
         FragmentManager fragmentManager = getSupportFragmentManager();
         IngredientsListFragment ingredientsListFragment = new IngredientsListFragment();
         fragmentManager.beginTransaction()
-                .replace(R.id.ingredients_container, ingredientsListFragment)
+                .replace(R.id.ingredients_list_container, ingredientsListFragment)
                 .commit();
 
     }
 
-    private void createFragmentSteps() {
+    private void createFragmentStepsList() {
         FragmentManager fragmentManager = getSupportFragmentManager();
         StepsListFragment stepsListFragment = new StepsListFragment();
         fragmentManager.beginTransaction()
-                .replace(R.id.steps_container, stepsListFragment)
+                .replace(R.id.steps_list_container, stepsListFragment)
                 .commit();
 
     }

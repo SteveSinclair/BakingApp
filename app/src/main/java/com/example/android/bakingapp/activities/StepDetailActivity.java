@@ -4,11 +4,14 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.android.bakingapp.R;
+import com.example.android.bakingapp.entities.Recipe;
 import com.example.android.bakingapp.entities.Step;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerFactory;
@@ -21,80 +24,131 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
-import static com.example.android.bakingapp.Constants.EXTRA_STEP;
+import static com.example.android.bakingapp.Constants.EXTRA_RECIPE;
+import static com.example.android.bakingapp.Constants.EXTRA_STEP_ID;
 
 public class StepDetailActivity extends AppCompatActivity {
     private static final String TAG = StepDetailActivity.class.getSimpleName();
 
-    private Step step;
-    private TextView textViewInstructionDescription;
-    private PlayerView playerView;
-    private SimpleExoPlayer exoPlayer;
-    private DefaultBandwidthMeter bandwidthMeter;
-    private AdaptiveTrackSelection.Factory videoTrackSelectionFactory;
-    private DefaultTrackSelector trackSelector;
-    private DefaultDataSourceFactory dataSourceFactory;
-    private ExtractorMediaSource videoSource;
-    private long currentPosition;
-    private boolean isLandscapeMode = false;
+    private Recipe mRecipe;
+    private Step mCurrentStep;
 
-    public void setStep(Step aStep) {
-        this.step = aStep;
-        setTitle(step.getShortDescription());
+    private TextView mTextViewInstructionDescription;
+    private PlayerView mPlayerView;
+    private SimpleExoPlayer mExoPlayer;
+    private DefaultBandwidthMeter mBandwidthMeter;
+    private AdaptiveTrackSelection.Factory mVideoTrackSelectionFactory;
+    private DefaultTrackSelector mTrackSelector;
+    private DefaultDataSourceFactory mDataSourceFactory;
+    private ExtractorMediaSource mVideoSource;
+    private long mCurrentPlayerPosition;
+    private boolean mIsLandscapeMode = false;
+    private Button mButtonPreviousStep;
+    private Button mButtonNextStep;
+    private ImageView mImageViewNoVideo;
 
-        if (!isLandscapeMode) {
-            textViewInstructionDescription.setText(step.getDescription());
+
+    private void setUI() {
+        if (mCurrentStep != null) {
+            setTitle(mCurrentStep.getShortDescription());
+            if (!mIsLandscapeMode) {
+                mTextViewInstructionDescription.setText(mCurrentStep.getDescription());
+            }
+            if ((mCurrentStep.getVideoURL() != null) && (mCurrentStep.getVideoURL() != "")) {
+                mImageViewNoVideo.setVisibility(View.GONE);
+                initVideoPlayer(Uri.parse(mCurrentStep.getVideoURL()));
+            } else {
+                mImageViewNoVideo.setVisibility(View.VISIBLE);
+                freeAndNilExoPlayer();
+            }
+            mButtonPreviousStep.setEnabled(mRecipe.steps.indexOf(mCurrentStep) != 0);
+            mButtonNextStep.setEnabled(mRecipe.steps.indexOf(mCurrentStep) != mRecipe.steps.size() - 1);
+
+        }
+    }
+
+    public void setCurrentStepFromId(int id) {
+        if (mRecipe != null) {
+            for (Step step : mRecipe.steps)
+                if (step.getId() == id) {
+                    mCurrentStep = step;
+                    break;
+                }
+            setUI();
+        }
+    }
+
+
+    public void previous(View view) {
+        if (mCurrentStep != null) {
+            int idx = mRecipe.steps.indexOf(mCurrentStep);
+            idx--;
+            if (idx > -1) {
+                mCurrentStep = mRecipe.steps.get(idx);
+                setUI();
+            }
+        }
+    }
+
+    public void next(View view) {
+        if (mCurrentStep != null) {
+            int idx = mRecipe.steps.indexOf(mCurrentStep);
+            idx++;
+            if (idx <= mRecipe.steps.size() - 1) {
+                mCurrentStep = mRecipe.steps.get(idx);
+                setUI();
+            }
         }
 
-
-        if ((step.getVideoURL() != null) && (step.getVideoURL() != "")) {
-            initVideoPlayer(Uri.parse(step.getVideoURL()));
-        } else {
-
-        }
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate: ");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_step_detail);
 
-        textViewInstructionDescription = (TextView) findViewById(R.id.textViewStepDescription);
-        isLandscapeMode = (textViewInstructionDescription == null);
+        mTextViewInstructionDescription = (TextView) findViewById(R.id.textViewStepDescription);
+        mIsLandscapeMode = (mTextViewInstructionDescription == null);
+        mButtonPreviousStep = (Button) findViewById(R.id.buttonPreviousStep);
+        mButtonNextStep = (Button) findViewById(R.id.buttonNextStep);
+        mImageViewNoVideo = (ImageView) findViewById(R.id.imageViewNoVideo);
 
-        playerView = (PlayerView) findViewById(R.id.playerViewStepVideo);
+        mPlayerView = (PlayerView) findViewById(R.id.playerViewStepVideo);
 
-        if (getIntent().hasExtra(EXTRA_STEP)) {
-            setStep((Step) getIntent().getSerializableExtra(EXTRA_STEP));
+        if (getIntent().hasExtra(EXTRA_RECIPE)) {
+            mRecipe = (Recipe) getIntent().getSerializableExtra(EXTRA_RECIPE);
+        }
+
+        if (getIntent().hasExtra(EXTRA_STEP_ID)) {
+            setCurrentStepFromId((int) getIntent().getIntExtra(EXTRA_STEP_ID, 0));
         }
     }
 
     public void initVideoPlayer(Uri videoUri) {
-        if (exoPlayer == null) {
 
-            // 1. Create a default TrackSelector
-            bandwidthMeter = new DefaultBandwidthMeter();
-            videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory(bandwidthMeter);
-            trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
+        freeAndNilExoPlayer();
 
-            // 2. Create the player
-            exoPlayer = ExoPlayerFactory.newSimpleInstance(getApplicationContext(), trackSelector);
-
-            // Bind the player to the view.
-            playerView.setPlayer(exoPlayer);
-
-            // Produces DataSource instances through which media data is loaded.
-            dataSourceFactory = new DefaultDataSourceFactory(getApplicationContext(), Util.getUserAgent(getApplicationContext(), getString(R.string.app_name)), bandwidthMeter);
-
-            // This is the MediaSource representing the media to be played.
-            videoSource = new ExtractorMediaSource.Factory(dataSourceFactory).createMediaSource(videoUri);
-
-            // Prepare the player with the source.
-            if (currentPosition != C.TIME_UNSET) {
-                exoPlayer.seekTo(currentPosition);
-            }
-            exoPlayer.prepare(videoSource);
+        mBandwidthMeter = new DefaultBandwidthMeter();
+        mVideoTrackSelectionFactory = new AdaptiveTrackSelection.Factory(mBandwidthMeter);
+        mTrackSelector = new DefaultTrackSelector(mVideoTrackSelectionFactory);
+        mExoPlayer = ExoPlayerFactory.newSimpleInstance(getApplicationContext(), mTrackSelector);
+        mPlayerView.setPlayer(mExoPlayer);
+        mDataSourceFactory = new DefaultDataSourceFactory(getApplicationContext(), Util.getUserAgent(getApplicationContext(), getString(R.string.app_name)), mBandwidthMeter);
+        mVideoSource = new ExtractorMediaSource.Factory(mDataSourceFactory).createMediaSource(videoUri);
+        if (mCurrentPlayerPosition != C.TIME_UNSET) {
+            mExoPlayer.seekTo(mCurrentPlayerPosition);
         }
+        mExoPlayer.prepare(mVideoSource);
+    }
+
+    private void freeAndNilExoPlayer() {
+        if (mExoPlayer != null) {
+            mExoPlayer.stop();
+            mExoPlayer.release();
+            mExoPlayer = null;
+        }
+        mCurrentPlayerPosition = C.TIME_UNSET;
     }
 
 
