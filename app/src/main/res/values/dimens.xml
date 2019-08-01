@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="text_margin">16dp</dimen>
+
+    <dimen name="text_recipe_name">20sp</dimen>
+    <dimen name="text_serves">14sp</dimen>
+    <dimen name="text_ingredients_title">18sp</dimen>
+    <dimen name="text_ingredient">14sp</dimen>
+    <dimen name="text_step">14sp</dimen>
+    <dimen name="default_padding">16dp</dimen>
+    <dimen name="recipe_name_margin_right">56dp</dimen>
+    <dimen name="recipe_image_margin_bottom">8dp</dimen>
+    <dimen name="video_player_height">230dp</dimen>
+    <dimen name="paddingStartIndent">10dp</dimen>
+
+</resources>
