@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.example.android.bakingapp.R;
 import com.example.android.bakingapp.entities.Recipe;
 import com.example.android.bakingapp.entities.Step;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -108,20 +109,20 @@ public class StepDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_step_detail);
 
-        mTextViewInstructionDescription = (TextView) findViewById(R.id.textViewStepDescription);
+        mTextViewInstructionDescription = findViewById(R.id.textViewStepDescription);
         mIsLandscapeMode = (mTextViewInstructionDescription == null);
-        mButtonPreviousStep = (Button) findViewById(R.id.buttonPreviousStep);
-        mButtonNextStep = (Button) findViewById(R.id.buttonNextStep);
-        mImageViewNoVideo = (ImageView) findViewById(R.id.imageViewNoVideo);
+        mButtonPreviousStep = findViewById(R.id.buttonPreviousStep);
+        mButtonNextStep = findViewById(R.id.buttonNextStep);
+        mImageViewNoVideo = findViewById(R.id.imageViewNoVideo);
 
-        mPlayerView = (PlayerView) findViewById(R.id.playerViewStepVideo);
+        mPlayerView = findViewById(R.id.playerViewStepVideo);
 
         if (getIntent().hasExtra(EXTRA_RECIPE)) {
             mRecipe = (Recipe) getIntent().getSerializableExtra(EXTRA_RECIPE);
         }
 
         if (getIntent().hasExtra(EXTRA_STEP_ID)) {
-            setCurrentStepFromId((int) getIntent().getIntExtra(EXTRA_STEP_ID, 0));
+            setCurrentStepFromId(getIntent().getIntExtra(EXTRA_STEP_ID, 0));
         }
     }
 

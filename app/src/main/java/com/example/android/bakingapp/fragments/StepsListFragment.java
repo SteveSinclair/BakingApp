@@ -14,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.android.bakingapp.R;
-import com.example.android.bakingapp.activities.StepDetailActivity;
 import com.example.android.bakingapp.adapters.StepsAdapter;
 import com.example.android.bakingapp.entities.Recipe;
 import com.example.android.bakingapp.entities.Step;
@@ -33,6 +32,20 @@ public class StepsListFragment extends Fragment implements StepsAdapter.StepsAda
 
     }
 
+    public interface OnStepSelectedListener {
+        void onStepSelected(Step step);
+    }
+
+    public OnStepSelectedListener callback;
+
+    public void setOnStepSelectedListener(OnStepSelectedListener callback) {
+        this.callback = callback;
+    }
+
+    @Override
+    public void OnClick(Step step) {
+        callback.onStepSelected(step);
+    }
 
     @Nullable
     @Override
@@ -51,11 +64,4 @@ public class StepsListFragment extends Fragment implements StepsAdapter.StepsAda
     }
 
 
-    @Override
-    public void OnClick(Step step) {
-        Intent intent = new Intent(getActivity().getApplicationContext(), StepDetailActivity.class);
-        intent.putExtra(EXTRA_RECIPE, mRecipe);
-        intent.putExtra(EXTRA_STEP_ID, step.getId());
-        startActivity(intent);
-    }
 }
